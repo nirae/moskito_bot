@@ -31,7 +31,7 @@ def hour(update, context):
 #     print("send!")
 #     bot.send_message("BzzZZZZZ", chat_id)
 
-# @bot.repeat(interval=60)
+# @bot.repeat(interval=10)
 # def bzz_minutes(context):
 #     print("send!")
 #     bot.send_message("Bzz", chat_id)

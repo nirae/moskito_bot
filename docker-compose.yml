@@ -1,6 +1,6 @@
 version: '3'
 services:
   moskito-bot:
-    build: .
+    image: moskito-bot
     env_file:
       - telegram.env

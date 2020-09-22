@@ -1,3 +1,6 @@
+build:
+	docker build -t moskito-bot .
+
 up:
 	docker-compose up -d
 
