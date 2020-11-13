@@ -4,3 +4,4 @@ services:
     image: moskito-bot
     env_file:
       - telegram.env
+    restart: always

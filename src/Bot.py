@@ -1,6 +1,7 @@
 # pip3 install python-telegram-bot
 import telegram
-from telegram.ext import Updater, CommandHandler, JobQueue
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, JobQueue, ConversationHandler
 import datetime
 
 class Bot(object):
@@ -17,8 +18,24 @@ class Bot(object):
                     pass_job_queue=False,
                     pass_chat_data=False):
         def decorator(func):
-            handler = CommandHandler(name, func, pass_args, pass_job_queue, pass_chat_data)
+            handler = CommandHandler(name, func, pass_args=True, pass_update_queue=True, pass_job_queue=True, pass_user_data=True, pass_chat_data=True)
             self.updater.dispatcher.add_handler(handler)
+            return func
+        return decorator
+
+    def conversation(self, name, states, cancel_text=None):
+        def decorator(func):
+
+            def cancel(update, context):
+                if cancel_text:
+                    update.message.reply_text(cancel_text)
+                return ConversationHandler.END
+            conv_handler = ConversationHandler(
+                entry_points=[CommandHandler(name, func)],
+                states=states,
+                fallbacks=[CommandHandler('cancel', cancel)]
+            )
+            self.updater.dispatcher.add_handler(conv_handler)
             return func
         return decorator
 
@@ -30,11 +47,19 @@ class Bot(object):
             return func
         return decorator
 
-    def daily(self, time, days=(0, 1, 2, 3, 4, 5, 6)):
+    def weekly(self, time, day):
         def decorator(func):
             to = datetime.time()
             t = to.fromisoformat(time).replace(tzinfo=datetime.datetime.now().astimezone().tzinfo)
-            self.jobs.run_daily(func, t, days, context=self.chat_id)
+            self.jobs.run_monthly(func, t, tuple(day), context=self.chat_id)
+            return func
+        return decorator
+
+    def daily(self, time):
+        def decorator(func):
+            to = datetime.time()
+            t = to.fromisoformat(time).replace(tzinfo=datetime.datetime.now().astimezone().tzinfo)
+            self.jobs.run_daily(func, t, (0, 1, 2, 3, 4, 5, 6), context=self.chat_id)
             return func
         return decorator
 
@@ -46,6 +71,24 @@ class Bot(object):
 
     def send_message(self, message, chat_id):
         self.bot.send_message(chat_id=chat_id, text=message)
+
+    def add_monthly_job(self, func, args, time, day):
+        to = datetime.time()
+        t = to.fromisoformat(time).replace(tzinfo=datetime.datetime.now().astimezone().tzinfo)
+        job = self.jobs.run_monthly(func, t, day, context=args)
+        return job
+
+    def add_weekly_job(self, func, args, time, day):
+        to = datetime.time()
+        t = to.fromisoformat(time).replace(tzinfo=datetime.datetime.now().astimezone().tzinfo)
+        job = self.jobs.run_monthly(func, t, tuple(day), context=args)
+        return job
+
+    def add_daily_job(self, func, args, time):
+        to = datetime.time()
+        t = to.fromisoformat(time).replace(tzinfo=datetime.datetime.now().astimezone().tzinfo)
+        job = self.jobs.run_daily(func, t, (0, 1, 2, 3, 4, 5, 6), context=args)
+        return job
 
     def start(self):
         # start the bot
