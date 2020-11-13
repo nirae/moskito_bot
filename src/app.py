@@ -99,8 +99,6 @@ def address(update, context):
         f.close()
     for key, val in context.user_data.items():
         data['user'][key] = val
-    data['user']['send']['telegram']['token'] = str(token)
-    data['user']['send']['telegram']['chat_id'] = str(update.message.from_user.id)
     with open(str(update.message.from_user.id) + '_config.yml', 'w') as f:
         yaml.dump(data, f)
         f.close()

@@ -7,7 +7,3 @@ user:
   zipcode: 75000
   city: City
   reason: achats
-  send:
-    telegram:
-      token: '000000000:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-      chat_id: '0000000000'
