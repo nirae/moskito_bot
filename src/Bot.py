@@ -36,7 +36,7 @@ class Bot(object):
                 per_user=True,
                 states=states,
                 allow_reentry=True,
-                conversation_timeout=timedelta(minutes==2),
+                conversation_timeout=timedelta(minutes=2),
                 fallbacks=[CommandHandler('stop', cancel)]
             )
             self.updater.dispatcher.add_handler(conv_handler)

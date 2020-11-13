@@ -24,6 +24,10 @@ def birthday(update, context):
     update.message.reply_text("Lieu de naissance?")
     return PLACEOFBIRTH
 
+def birthday_error(update, context):
+    update.message.reply_text("Hmmm la date n'est pas bonne... Recommence!")
+    return BIRTHDAY
+
 def place_of_birth(update, context):
     context.user_data['placeofbirth'] = update.message.text
     update.message.reply_text("Je sais même pas ou c'est\nCode postal de ton lieu de résidence?")
@@ -32,6 +36,10 @@ def place_of_birth(update, context):
 def zipcode(update, context):
     context.user_data['zipcode'] = int(update.message.text)
     update.message.reply_text("Ville de résidence?")
+    return CITY
+
+def zipcode_error(update, context):
+    update.message.reply_text("Hmmm le code postal n'est pas bon... Recommence!")
     return CITY
 
 def city(update, context):
@@ -113,11 +121,17 @@ REASON, FIRST_NAME, LAST_NAME, BIRTHDAY, PLACEOFBIRTH, ZIPCODE, CITY, ADDRESS  =
 
 states = {
     REASON: [CallbackQueryHandler(reason)],
-    FIRST_NAME: [MessageHandler(Filters.text & (~Filters.command), first_name, message_updates=True)], 
-    LAST_NAME: [MessageHandler(Filters.text & (~Filters.command), last_name, message_updates=True)], 
-    BIRTHDAY: [MessageHandler(Filters.regex('^([0-9]{2}/[0-9]{2}/[0-9]{4})$'), birthday, message_updates=True)], 
-    PLACEOFBIRTH: [MessageHandler(Filters.text & (~Filters.command), place_of_birth, message_updates=True)], 
-    ZIPCODE: [MessageHandler(Filters.regex('^([1-9]{1}[0-9]{4})$'), zipcode, message_updates=True)], 
-    CITY: [MessageHandler(Filters.text & (~Filters.command), city, message_updates=True)],
-    ADDRESS: [MessageHandler(Filters.text & (~Filters.command), address, message_updates=True)]
+    FIRST_NAME: [MessageHandler(Filters.text & (~Filters.command), first_name)], 
+    LAST_NAME: [MessageHandler(Filters.text & (~Filters.command), last_name)], 
+    BIRTHDAY: [
+        MessageHandler(Filters.regex('^([0-9]{2}/[0-9]{2}/[0-9]{4})$'), birthday),
+        MessageHandler(Filters.regex('^.*$'), birthday_error)
+    ], 
+    PLACEOFBIRTH: [MessageHandler(Filters.text & (~Filters.command), place_of_birth)], 
+    ZIPCODE: [
+        MessageHandler(Filters.regex('^([1-9]{1}[0-9]{4})$'), zipcode),
+        MessageHandler(Filters.regex('^.*$'), zipcode_error)
+    ], 
+    CITY: [MessageHandler(Filters.text & (~Filters.command), city)],
+    ADDRESS: [MessageHandler(Filters.text & (~Filters.command), address)]
 }
