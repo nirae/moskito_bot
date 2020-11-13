@@ -3,6 +3,7 @@ import telegram
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, JobQueue, ConversationHandler
 import datetime
+from datetime import timedelta
 
 class Bot(object):
 
@@ -35,6 +36,7 @@ class Bot(object):
                 per_user=True,
                 states=states,
                 allow_reentry=True,
+                conversation_timeout=timedelta(minutes==2),
                 fallbacks=[CommandHandler('stop', cancel)]
             )
             self.updater.dispatcher.add_handler(conv_handler)
