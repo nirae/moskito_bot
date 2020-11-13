@@ -34,6 +34,7 @@ class Bot(object):
                 entry_points=[CommandHandler(name, func)],
                 per_user=True,
                 states=states,
+                allow_reentry=True,
                 fallbacks=[CommandHandler('stop', cancel)]
             )
             self.updater.dispatcher.add_handler(conv_handler)
