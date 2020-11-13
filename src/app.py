@@ -44,7 +44,7 @@ def attestation(update, context):
         update.message.reply_text("""Ah ! Je n'ai pas encore les informations te concernant.
 Réponds à mes quelques questions et tu n'auras plus jamais à le faire !
 
-Je stockerai tes informations dans un fichier de configuration. Tu peux quitter la conversation à tout moment en envoyant "stop". Tu peux aussi supprimer ton fichier de configuration avec la commande /oublier.
+Je stockerai tes informations dans un fichier de configuration. Tu peux quitter la conversation à tout moment en envoyant /stop. Tu peux aussi supprimer ton fichier de configuration avec la commande /oublier.
 
 Les attestations sont supprimées directement après l'envoi.
 

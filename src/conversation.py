@@ -10,67 +10,36 @@ from generateur_attestation_sortie.app import Generator, ConfigSchema
 attestation_config_file = os.getcwd() + "/config_files/{chat_id}_config.yml"
 
 def first_name(update, context):
-    if update.message.text == "stop":
-        logging.info("[%d] stopping the questions" % update.message.from_user.id)
-        update.message.reply_text("Tant pis...")
-        return ConversationHandler.END
     context.user_data['first_name'] = update.message.text
     update.message.reply_text('Joli !\nNom de famille?')
     return LAST_NAME
 
 def last_name(update, context):
-    if update.message.text == "stop":
-        logging.info("[%d] stopping the questions" % update.message.from_user.id)
-        update.message.reply_text("Tant pis...")
-        return ConversationHandler.END
     context.user_data['last_name'] = update.message.text
     update.message.reply_text("On choisit pas...\nDate de naissance? format: JJ/MM/AAAA")
     return BIRTHDAY
 
 def birthday(update, context):
-    if update.message.text == "stop":
-        logging.info("[%d] stopping the questions" % update.message.from_user.id)
-        update.message.reply_text("Tant pis...")
-        return ConversationHandler.END
     context.user_data['birthday'] = update.message.text
     update.message.reply_text("Lieu de naissance?")
     return PLACEOFBIRTH
 
 def place_of_birth(update, context):
-    if update.message.text == "stop":
-        logging.info("[%d] stopping the questions" % update.message.from_user.id)
-        update.message.reply_text("Tant pis...")
-        return ConversationHandler.END
     context.user_data['placeofbirth'] = update.message.text
     update.message.reply_text("Je sais même pas ou c'est\nCode postal de ton lieu de résidence?")
     return ZIPCODE
 
 def zipcode(update, context):
-    if update.message.text == "stop":
-        logging.info("[%d] stopping the questions" % update.message.from_user.id)
-        logging.info("stopping the questions by %d" % update.message.from_user.id)
-        update.message.reply_text("Tant pis...")
-        return ConversationHandler.END
     context.user_data['zipcode'] = int(update.message.text)
     update.message.reply_text("Ville de résidence?")
     return CITY
 
 def city(update, context):
-    if update.message.text == "stop":
-        logging.info("[%d] stopping the questions" % update.message.from_user.id)
-        logging.info("stopping the questions by %d" % update.message.from_user.id)
-        update.message.reply_text("Tant pis...")
-        return ConversationHandler.END
     context.user_data['city'] = update.message.text
     update.message.reply_text("Dernier!\nAdresse?")
     return ADDRESS
 
 def address(update, context):
-    if update.message.text == "stop":
-        logging.info("[%d] stopping the questions" % update.message.from_user.id)
-        update.message.reply_text("Tant pis...")
-        return ConversationHandler.END
-
     update.message.reply_text("Et voilà ! Tes infos sont stockées dans un fichier de configuration, je ne te les demanderai plus. Tu peux les voir avec /maconfig, ou les supprimer avec /oublier")
     context.user_data['address'] = update.message.text
     with open('exemple_config.yml') as f:
@@ -144,11 +113,11 @@ REASON, FIRST_NAME, LAST_NAME, BIRTHDAY, PLACEOFBIRTH, ZIPCODE, CITY, ADDRESS  =
 
 states = {
     REASON: [CallbackQueryHandler(reason)],
-    FIRST_NAME: [MessageHandler(Filters.text, first_name)], 
-    LAST_NAME: [MessageHandler(Filters.text, last_name)], 
-    BIRTHDAY: [MessageHandler(Filters.regex('^([0-9]{2}/[0-9]{2}/[0-9]{4})$'), birthday)], 
-    PLACEOFBIRTH: [MessageHandler(Filters.text, place_of_birth)], 
-    ZIPCODE: [MessageHandler(Filters.regex('^([1-9]{1}[0-9]{4})$'), zipcode)], 
-    CITY: [MessageHandler(Filters.text, city)],
-    ADDRESS: [MessageHandler(Filters.text, address)]
+    FIRST_NAME: [MessageHandler(Filters.text & (~Filters.command), first_name, message_updates=True)], 
+    LAST_NAME: [MessageHandler(Filters.text & (~Filters.command), last_name, message_updates=True)], 
+    BIRTHDAY: [MessageHandler(Filters.regex('^([0-9]{2}/[0-9]{2}/[0-9]{4})$'), birthday, message_updates=True)], 
+    PLACEOFBIRTH: [MessageHandler(Filters.text & (~Filters.command), place_of_birth, message_updates=True)], 
+    ZIPCODE: [MessageHandler(Filters.regex('^([1-9]{1}[0-9]{4})$'), zipcode, message_updates=True)], 
+    CITY: [MessageHandler(Filters.text & (~Filters.command), city, message_updates=True)],
+    ADDRESS: [MessageHandler(Filters.text & (~Filters.command), address, message_updates=True)]
 }
