@@ -111,20 +111,16 @@ Tu peux relancer la commande /attestation pour recevoir ton attestation
 def reason(update, context):
     message = context.user_data['message']
     try:
-        with open(str(chat_id) + '_config.yml') as f:
+        with open(str(message.from_user.id) + '_config.yml') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
-            f.close()
-    except:
-        traceback.print_exc()
 
-    data['user']['user'] = 'user'
-    data['user']['reason'] = update.callback_query.data
-    gen = Generator()
-    schema = ConfigSchema()
-    try:
+        data['user']['user'] = 'user'
+        data['user']['reason'] = update.callback_query.data
+        gen = Generator()
+        schema = ConfigSchema()
         config = schema.load(data['user'])
         print("vars", vars(config))
-        filename = gen.run(config, output=str(chat_id) + '_attestation.pdf')
+        filename = gen.run(config, output=str(message.from_user.id) + '_attestation.pdf')
         if not filename:
             return ConversationHandler.END
         with open(filename, 'rb') as f:
