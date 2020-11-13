@@ -4,4 +4,6 @@ services:
     image: moskito-bot
     env_file:
       - telegram.env
+    volumes:
+      - "./configs:/usr/src/app/config_files"
     restart: always

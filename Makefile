@@ -7,5 +7,7 @@ up:
 down:
 	docker-compose down
 
+test: down build up
+
 restart:
 	docker-compose restart

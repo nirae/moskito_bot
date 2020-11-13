@@ -5,6 +5,8 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN mkdir config_files
+
 RUN apt-get update && apt-get install chromium chromium-l10n chromium-driver -y
 
 ENV LC_ALL fr_FR.UTF-8
