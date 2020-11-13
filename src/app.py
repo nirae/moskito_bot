@@ -91,7 +91,10 @@ def address(update, context):
         update.message.reply_text("Tant pis...")
         return ConversationHandler.END
 
-    update.message.reply_text("Et voilà ! Tes infos sont stockées dans un fichier de configuration, je ne te les demanderai plus.\nTu peux relancer la commande /attestation pour recevoir ton attestation")
+    update.message.reply_text("""
+Et voilà ! Tes infos sont stockées dans un fichier de configuration, je ne te les demanderai plus.
+Tu peux relancer la commande /attestation pour recevoir ton attestation
+""")
     context.user_data['address'] = update.message.text
 
     with open('config.yml') as f:
@@ -106,7 +109,7 @@ def address(update, context):
     return ConversationHandler.END
 
 def reason(update, context):
-    chat_id = context.user_data['chat_id']
+    message = context.user_data['message']
     try:
         with open(str(chat_id) + '_config.yml') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
@@ -125,7 +128,7 @@ def reason(update, context):
         if not filename:
             return ConversationHandler.END
         with open(filename, 'rb') as f:
-            bot.bot.send_document(chat_id=chat_id, document=f)
+            message.reply_document(document=f)
             f.close()
         os.remove(filename)
         gen.close()
@@ -159,7 +162,7 @@ Les attestations sont supprimées directement après l'envoi.
 Commençons, quel est ton prénom ?""")
         return FIRST_NAME
     try:
-        context.user_data['chat_id'] = update.message.from_user.id
+        context.user_data['message'] = update.message
         keyboard = [
             [
                 InlineKeyboardButton("Achats", callback_data='achats'),
@@ -184,7 +187,7 @@ Commençons, quel est ton prénom ?""")
     return REASON
 
 @bot.add_command(name='oublier')
-def jobs(update, context):
+def oublier(update, context):
     filename = str(update.message.from_user.id) + '_config.yml'
     file = glob.glob(filename)
     if not file:
