@@ -32,6 +32,7 @@ class Bot(object):
                 return ConversationHandler.END
             conv_handler = ConversationHandler(
                 entry_points=[CommandHandler(name, func)],
+                per_user=True,
                 states=states,
                 fallbacks=[CommandHandler('cancel', cancel)]
             )

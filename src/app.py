@@ -10,7 +10,7 @@ import glob
 import yaml
 import traceback
 
-from generator import Generator, ConfigSchema, Sender
+from generator import Generator, ConfigSchema
 
 token = os.environ['TELEGRAM_TOKEN']
 chat_id = os.environ['TELEGRAM_GROUP_ID']
