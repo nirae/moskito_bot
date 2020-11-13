@@ -71,7 +71,7 @@ def address(update, context):
         update.message.reply_text("Tant pis...")
         return ConversationHandler.END
 
-    update.message.reply_text("Et voilà ! Tes infos sont stockées dans un fichier de configuration, je ne te les demanderai plus. Tu peux les voirs avec /maconfig, ou les supprimer avec /oublier")
+    update.message.reply_text("Et voilà ! Tes infos sont stockées dans un fichier de configuration, je ne te les demanderai plus. Tu peux les voir avec /maconfig, ou les supprimer avec /oublier")
     context.user_data['address'] = update.message.text
     with open('exemple_config.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
