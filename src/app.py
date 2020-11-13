@@ -19,8 +19,7 @@ bot = Bot(token, chat_id)
 
 @bot.add_command(name='hello')
 def hello(update, context):
-    print("hello")
-    update.message.reply_text('Bzz Bzz ... Hello %s!' % update.message.text.first_name)
+    update.message.reply_text('Bzz Bzz ... Hello %s!' % update.message.from_user.first_name)
 
 @bot.add_command(name='heure')
 def hour(update, context):
