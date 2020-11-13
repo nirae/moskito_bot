@@ -9,19 +9,6 @@ from generateur_attestation_sortie.app import Generator, ConfigSchema
 
 attestation_config_file = os.getcwd() + "/config_files/{chat_id}_config.yml"
 
-REASON, FIRST_NAME, LAST_NAME, BIRTHDAY, PLACEOFBIRTH, ZIPCODE, CITY, ADDRESS  = range(8)
-
-states = {
-    REASON: [CallbackQueryHandler(reason)],
-    FIRST_NAME: [MessageHandler(Filters.text, first_name)], 
-    LAST_NAME: [MessageHandler(Filters.text, last_name)], 
-    BIRTHDAY: [MessageHandler(Filters.regex('^([0-9]{2}/[0-9]{2}/[0-9]{4})$'), birthday)], 
-    PLACEOFBIRTH: [MessageHandler(Filters.text, place_of_birth)], 
-    ZIPCODE: [MessageHandler(Filters.regex('^([1-9]{1}[0-9]{4})$'), zipcode)], 
-    CITY: [MessageHandler(Filters.text, city)],
-    ADDRESS: [MessageHandler(Filters.text, address)]
-}
-
 def first_name(update, context):
     if update.message.text == "stop":
         logging.info("[%d] stopping the questions" % update.message.from_user.id)
@@ -152,3 +139,16 @@ def ask_reason(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text("Choisis la raison", reply_markup=reply_markup)
     return REASON
+
+REASON, FIRST_NAME, LAST_NAME, BIRTHDAY, PLACEOFBIRTH, ZIPCODE, CITY, ADDRESS  = range(8)
+
+states = {
+    REASON: [CallbackQueryHandler(reason)],
+    FIRST_NAME: [MessageHandler(Filters.text, first_name)], 
+    LAST_NAME: [MessageHandler(Filters.text, last_name)], 
+    BIRTHDAY: [MessageHandler(Filters.regex('^([0-9]{2}/[0-9]{2}/[0-9]{4})$'), birthday)], 
+    PLACEOFBIRTH: [MessageHandler(Filters.text, place_of_birth)], 
+    ZIPCODE: [MessageHandler(Filters.regex('^([1-9]{1}[0-9]{4})$'), zipcode)], 
+    CITY: [MessageHandler(Filters.text, city)],
+    ADDRESS: [MessageHandler(Filters.text, address)]
+}
