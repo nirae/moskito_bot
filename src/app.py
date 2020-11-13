@@ -9,7 +9,6 @@ import os
 import yaml
 import logging
 
-from generator import Generator, ConfigSchema
 from conversation import states, FIRST_NAME, ask_reason
 
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
@@ -74,7 +73,6 @@ def maconfig(update, context):
     else:
         with open(filename) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
-        del data['user']['reason']
         update.message.reply_text("""
 Attention les yeux, voici les informations de ton fichier de configuration :
 

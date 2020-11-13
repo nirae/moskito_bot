@@ -5,7 +5,7 @@ import os
 import yaml
 import logging
 
-from generator import Generator, ConfigSchema
+from generateur_attestation_sortie.app import Generator, ConfigSchema
 
 attestation_config_file = os.getcwd() + "/config_files/{chat_id}_config.yml"
 
