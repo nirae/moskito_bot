@@ -64,8 +64,19 @@ def reason(update, context):
     message = context.user_data['message']
     logging.info("[%d] reason choosed" % message.from_user.id)
 
-    with open(attestation_config_file.format(chat_id=message.from_user.id)) as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
+    try:
+        with open(attestation_config_file.format(chat_id=message.from_user.id)) as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+            if not data:
+                logging.error("[%d] empty config file" % message.from_user.id)
+                os.remove(attestation_config_file.format(chat_id=message.from_user.id))
+                message.reply_text("Ton fichier de configuration semble être corrompu, je le supprime. Fais en un nouveau avec /attestation")
+                return ConversationHandler.END
+    except:
+        logging.error("[%d] open failed on config file in reason" % message.from_user.id)
+        os.remove(attestation_config_file.format(chat_id=message.from_user.id))
+        message.reply_text("Tu n'as pas de fichier de configuration ou il est corrompu. Fais en un nouveau avec /attestation")
+        return ConversationHandler.END
 
     data['user']['user'] = 'user'
     data['user']['reason'] = update.callback_query.data
