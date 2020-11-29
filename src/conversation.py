@@ -110,7 +110,7 @@ def ask_reason(update, context):
     keyboard = [
         [
             InlineKeyboardButton("Achats", callback_data='achats'),
-            InlineKeyboardButton("Sortie 1h", callback_data='sports_animaux')
+            InlineKeyboardButton("Sortie 3h / 20km", callback_data='sports_animaux')
         ],
         [
             InlineKeyboardButton("Sante", callback_data='sante'),
