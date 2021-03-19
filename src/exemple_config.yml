@@ -7,3 +7,4 @@ user:
   zipcode: 75000
   city: City
   reason: achats
+  context: confinement

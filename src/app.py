@@ -9,7 +9,7 @@ import os
 import yaml
 import logging
 
-from conversation import states, FIRST_NAME, ask_reason
+from conversation import states, FIRST_NAME, ask_context
 
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
@@ -51,7 +51,7 @@ Les attestations sont supprimées directement après l'envoi.
 Commençons, quel est ton prénom ?""")
         return FIRST_NAME
     logging.info("[%d] config file %s found" % (update.message.from_user.id, file))
-    return ask_reason(update, context)
+    return ask_context(update, context)
 
 @bot.add_command(name='oublier')
 def oublier(update, context):

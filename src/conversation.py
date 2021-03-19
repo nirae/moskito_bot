@@ -4,6 +4,8 @@ from telegram.ext import ConversationHandler, MessageHandler, Filters, CallbackQ
 import os
 import yaml
 import logging
+import random
+import string
 
 from generateur_attestation_sortie.app import Generator, ConfigSchema
 
@@ -50,6 +52,7 @@ def city(update, context):
 def address(update, context):
     update.message.reply_text("Et voilà ! Tes infos sont stockées dans un fichier de configuration, je ne te les demanderai plus. Tu peux les voir avec /maconfig, ou les supprimer avec /oublier")
     context.user_data['address'] = update.message.text
+
     with open('exemple_config.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
     for key, val in context.user_data.items():
@@ -58,79 +61,133 @@ def address(update, context):
         yaml.dump(data, f)
     context.user_data.clear()
     logging.info("[%d] %s created!" % (update.message.from_user.id, attestation_config_file.format(chat_id=update.message.from_user.id)))
-    return ask_reason(update, context)
+
+    return ask_context(update, context)
 
 def reason(update, context):
-    message = context.user_data['message']
-    logging.info("[%d] reason choosed" % message.from_user.id)
+    message = update.callback_query.message
+    logging.info("[%d] reason choosed" % update.callback_query.from_user.id)
 
     try:
-        with open(attestation_config_file.format(chat_id=message.from_user.id)) as f:
+        with open(attestation_config_file.format(chat_id=update.callback_query.from_user.id)) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
             if not data:
-                logging.error("[%d] empty config file" % message.from_user.id)
-                os.remove(attestation_config_file.format(chat_id=message.from_user.id))
+                logging.error("[%d] empty config file" % update.callback_query.from_user.id)
+                os.remove(attestation_config_file.format(chat_id=update.callback_query.from_user.id))
                 message.reply_text("Ton fichier de configuration semble être corrompu, je le supprime. Fais en un nouveau avec /attestation")
                 return ConversationHandler.END
     except:
-        logging.error("[%d] open failed on config file in reason" % message.from_user.id)
-        os.remove(attestation_config_file.format(chat_id=message.from_user.id))
+        logging.error("[%d] open failed on config file in reason" % update.callback_query.from_user.id)
+        os.remove(attestation_config_file.format(chat_id=update.callback_query.from_user.id))
         message.reply_text("Tu n'as pas de fichier de configuration ou il est corrompu. Fais en un nouveau avec /attestation")
         return ConversationHandler.END
 
     data['user']['user'] = 'user'
     data['user']['reason'] = update.callback_query.data
+    data['user']['context'] = context.user_data['context']
+    if 'message' in data['user']:
+        del data['user']['message']
 
     gen = Generator()
     schema = ConfigSchema()
     config = schema.load(data['user'])
     if not config:
-        logging.error("[%d] config validation failed" % message.from_user.id)
+        logging.error("[%d] config validation failed" % update.callback_query.from_user.id)
         message.reply_text("Une erreur est survenue durant la génération de l'attestation, vérifie tes informations avec la commande /maconfig et essaye de recommencer")
         return ConversationHandler.END
     
-    logging.info("[%d] attestation generation..." % message.from_user.id)
+    logging.info("[%d] attestation generation..." % update.callback_query.from_user.id)
     logging.debug(vars(config))
-    filename = gen.run(config, output=str(message.from_user.id) + '_attestation.pdf')
+
+    letters = string.ascii_lowercase
+    tmp_filename = ''.join(random.choice(letters) for i in range(30))
+    tmp_filename = '/tmp/' + tmp_filename
+
+    filename = gen.run(config, output= tmp_filename + str(update.callback_query.from_user.id) + '_attestation.pdf')
     if not filename:
-        logging.error("[%d] attestation generation failed" % message.from_user.id)
+        logging.error("[%d] attestation generation failed" % update.callback_query.from_user.id)
         message.reply_text("Une erreur est survenue durant la génération de l'attestation, vérifie tes informations avec la commande /maconfig et essaye de recommencer")
         return ConversationHandler.END
-    logging.info("[%d] done" % message.from_user.id)
+    logging.info("[%d] done" % update.callback_query.from_user.id)
     with open(filename, 'rb') as f:
-        message.reply_document(document=f)
-    logging.info("[%d] removing attestation file %s" % (message.from_user.id, filename))
+        message.reply_document(document=f, filename='attestation.pdf')
+    logging.info("[%d] removing attestation file %s" % (update.callback_query.from_user.id, filename))
     os.remove(filename)
     gen.close()
     context.user_data.clear()
     return ConversationHandler.END
 
-def ask_reason(update, context):
+def context_conv(update, context):
+    message = context.user_data['message']
+    logging.info("[%d] context choosed" % message.from_user.id)
+    context.user_data['context'] = update.callback_query.data
+    return ask_reason(update, context)
+
+def ask_context(update, context):
     context.user_data['message'] = update.message
     keyboard = [
         [
-            InlineKeyboardButton("Achats", callback_data='achats'),
-            InlineKeyboardButton("Sortie 3h / 20km", callback_data='sports_animaux')
-        ],
-        [
-            InlineKeyboardButton("Sante", callback_data='sante'),
-            InlineKeyboardButton("Travail", callback_data='travail')
-        ],
-        [
-            InlineKeyboardButton("Famille", callback_data='famille'),
-            InlineKeyboardButton("Handicap", callback_data='handicap'),
-            InlineKeyboardButton("Convocation", callback_data='convocation'),
-            InlineKeyboardButton("Mission", callback_data='missions'),
-            InlineKeyboardButton("Enfants", callback_data='enfants')
+            InlineKeyboardButton("Couvre-Feu", callback_data='couvre-feu'),
+            InlineKeyboardButton("Confinement Week-End", callback_data='confinement-weekend'),
+            InlineKeyboardButton("Confinement", callback_data='confinement')
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text("Choisis la raison", reply_markup=reply_markup)
+    update.message.reply_text("Contexte :", reply_markup=reply_markup)
+    return CONTEXT
+
+def ask_reason(update, context):
+    context.user_data['message'] = update.message
+
+    context_choice = context.user_data['context']
+    
+    if context_choice == 'couvre-feu':
+        keyboard = [
+            [
+                InlineKeyboardButton("Transits", callback_data='transits'),
+                InlineKeyboardButton("Animaux", callback_data='animaux')
+            ],
+            [
+                InlineKeyboardButton("Sante", callback_data='sante'),
+                InlineKeyboardButton("Travail", callback_data='travail')
+            ],
+            [
+                InlineKeyboardButton("Famille", callback_data='famille'),
+                InlineKeyboardButton("Handicap", callback_data='handicap'),
+                InlineKeyboardButton("Convocation", callback_data='convocation'),
+                InlineKeyboardButton("Mission", callback_data='missions'),
+            ]
+        ]
+    elif context_choice == 'confinement' or context_choice == 'confinement-weekend':
+        keyboard = [
+            [
+                InlineKeyboardButton("Achats", callback_data='achats'),
+                InlineKeyboardButton("Sortie", callback_data='sport'),
+                InlineKeyboardButton("Animaux", callback_data='animaux')
+            ],
+            [
+                InlineKeyboardButton("Transits", callback_data='transits'),
+                InlineKeyboardButton("Sante", callback_data='sante'),
+                InlineKeyboardButton("Travail", callback_data='travail')
+            ],
+            [
+                InlineKeyboardButton("Rassemblement", callback_data='rassemblement'),
+                InlineKeyboardButton("Demarche", callback_data='demarche'),
+                InlineKeyboardButton("Famille", callback_data='famille'),
+                InlineKeyboardButton("Handicap", callback_data='handicap'),
+                InlineKeyboardButton("Convocation", callback_data='convocation'),
+                InlineKeyboardButton("Mission", callback_data='missions'),
+            ]
+        ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.callback_query.message.reply_text("Choisis la raison", reply_markup=reply_markup)
     return REASON
 
-REASON, FIRST_NAME, LAST_NAME, BIRTHDAY, PLACEOFBIRTH, ZIPCODE, CITY, ADDRESS  = range(8)
+CONTEXT, REASON, FIRST_NAME, LAST_NAME, BIRTHDAY, PLACEOFBIRTH, ZIPCODE, CITY, ADDRESS  = range(9)
 
 states = {
+    CONTEXT: [CallbackQueryHandler(context_conv)],
     REASON: [CallbackQueryHandler(reason)],
     FIRST_NAME: [MessageHandler(Filters.text & (~Filters.command), first_name)], 
     LAST_NAME: [MessageHandler(Filters.text & (~Filters.command), last_name)], 
