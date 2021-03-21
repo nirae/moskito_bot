@@ -1,3 +1,3 @@
 [submodule "src/generateur_attestation_sortie"]
 	path = src/generateur_attestation_sortie
-	url = git@github.com:nirae/generateur_attestation_sortie.git
+	url = https://github.com/nirae/generateur_attestation_sortie.git
