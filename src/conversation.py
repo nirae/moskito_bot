@@ -167,7 +167,6 @@ def ask_reason(update, context):
             [
                 InlineKeyboardButton("Achats", callback_data='achats'),
                 InlineKeyboardButton("Sortie", callback_data='sport'),
-                InlineKeyboardButton("Animaux", callback_data='animaux')
             ],
             [
                 InlineKeyboardButton("Transits", callback_data='transits'),
@@ -175,12 +174,16 @@ def ask_reason(update, context):
                 InlineKeyboardButton("Travail", callback_data='travail')
             ],
             [
-                InlineKeyboardButton("Rassemblement", callback_data='rassemblement'),
-                InlineKeyboardButton("Demarche", callback_data='demarche'),
+                InlineKeyboardButton("Culte / Culturel", callback_data='culte-culturel'),
+                InlineKeyboardButton("Enfants", callback_data='enfants'),
+                InlineKeyboardButton("Déménagement", callback_data='demenagement'),
+                InlineKeyboardButton("Démarches", callback_data='demarche')
+            ],
+            [
                 InlineKeyboardButton("Famille", callback_data='famille'),
                 InlineKeyboardButton("Handicap", callback_data='handicap'),
                 InlineKeyboardButton("Convocation", callback_data='convocation'),
-                InlineKeyboardButton("Mission", callback_data='missions'),
+                InlineKeyboardButton("Mission", callback_data='missions')
             ]
         ]
 
