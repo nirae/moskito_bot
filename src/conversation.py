@@ -88,7 +88,11 @@ def reason(update, context):
     if 'message' in data['user']:
         del data['user']['message']
 
-    gen = Generator()
+    letters = string.ascii_lowercase
+    tmp_filename = ''.join(random.choice(letters) for i in range(30))
+    tmp_filename = '/tmp/' + tmp_filename
+
+    gen = Generator(directory=tmp_filename+'/')
     schema = ConfigSchema()
     config = schema.load(data['user'])
     if not config:
@@ -99,12 +103,13 @@ def reason(update, context):
     logging.info("[%d] attestation generation..." % update.callback_query.from_user.id)
     logging.debug(vars(config))
 
-    letters = string.ascii_lowercase
-    tmp_filename = ''.join(random.choice(letters) for i in range(30))
-    tmp_filename = '/tmp/' + tmp_filename
-
-    filename = gen.run(config, output= tmp_filename + str(update.callback_query.from_user.id) + '_attestation.pdf')
-    if not filename:
+    try:
+        filename = gen.run(config, output=tmp_filename + str(update.callback_query.from_user.id) + '_attestation.pdf')
+        if not filename:
+            logging.error("[%d] attestation generation failed" % update.callback_query.from_user.id)
+            message.reply_text("Une erreur est survenue durant la génération de l'attestation, vérifie tes informations avec la commande /maconfig et essaye de recommencer")
+            return ConversationHandler.END
+    except:
         logging.error("[%d] attestation generation failed" % update.callback_query.from_user.id)
         message.reply_text("Une erreur est survenue durant la génération de l'attestation, vérifie tes informations avec la commande /maconfig et essaye de recommencer")
         return ConversationHandler.END
@@ -128,7 +133,6 @@ def ask_context(update, context):
     keyboard = [
         [
             InlineKeyboardButton("Couvre-Feu", callback_data='couvre-feu'),
-            InlineKeyboardButton("Confinement Week-End", callback_data='confinement-weekend'),
             InlineKeyboardButton("Confinement", callback_data='confinement')
         ]
     ]
@@ -158,7 +162,7 @@ def ask_reason(update, context):
                 InlineKeyboardButton("Mission", callback_data='missions'),
             ]
         ]
-    elif context_choice == 'confinement' or context_choice == 'confinement-weekend':
+    elif context_choice == 'confinement':
         keyboard = [
             [
                 InlineKeyboardButton("Achats", callback_data='achats'),
