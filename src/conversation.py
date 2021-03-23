@@ -67,6 +67,7 @@ def address(update, context):
 def reason(update, context):
     message = update.callback_query.message
     logging.info("[%d] reason choosed" % update.callback_query.from_user.id)
+    message.reply_text("Bien reçu!")
 
     try:
         with open(attestation_config_file.format(chat_id=update.callback_query.from_user.id)) as f:
@@ -102,6 +103,7 @@ def reason(update, context):
     
     logging.info("[%d] attestation generation..." % update.callback_query.from_user.id)
     logging.debug(vars(config))
+    message.reply_text("Je génère ton attestation ...")
 
     try:
         filename = gen.run(config, output=tmp_filename + str(update.callback_query.from_user.id) + '_attestation.pdf')
